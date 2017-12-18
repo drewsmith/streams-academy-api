@@ -1,5 +1,6 @@
 package org.streams.academy;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
@@ -10,13 +11,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
-class Util {
+class CompileUtil {
 
   static final String PLACEHOLDER = "[PLACEHOLDER]";
-  static final String SOURCES_FOLDER = "src/main/resources/sources";
+  static final String SOURCES_FOLDER = "/tmp";
   static final String MAIN_CLASS = "main";
 
   static final FilenameFilter CLASS_FILTER = (dir, name) -> name != null && name.endsWith(".class");
@@ -36,22 +36,23 @@ class Util {
     final File sourceFile = new File(root, type.getSourceFilename());
 
     sourceFile.getParentFile().mkdirs();
-
     Files.write(sourceFile.toPath(), templateString.getBytes(StandardCharsets.UTF_8));
 
-    final JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-    compiler.run(null, null, null, sourceFile.getPath());
+    final Class<?> cls;
+    final ByteArrayOutputStream errors = new ByteArrayOutputStream();
 
-    final URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { root.toURI().toURL() });
-    final Class<?> cls = Class.forName(type.getClassName(), true, classLoader);
+    try {
+      ToolProvider.getSystemJavaCompiler().run(System.in, System.out, errors, sourceFile.getPath());
+      final URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { root.toURI().toURL() });
+      cls = Class.forName(type.getClassName(), true, classLoader);
+    } catch (final Exception e) {
+      throw new IllegalStateException(errors.toString());
+    }
 
     try {
       return cls.getMethod("execute", (Class<?>[]) null).invoke(null, (Object[]) null);
     } finally {
-      Files.delete(sourceFile.toPath());
-
-      final File parentDir = new File(sourceFile.getParent());
-      Arrays.stream(parentDir.list(CLASS_FILTER)).map(File::new).forEach(File::delete);
+      Arrays.stream(sourceFile.getParentFile().listFiles()).forEach(File::delete);
     }
   }
 

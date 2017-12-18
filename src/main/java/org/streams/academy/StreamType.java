@@ -13,7 +13,7 @@ public enum StreamType {
     this.className = className;
 
     try {
-      this.template = Util.getTemplate(templateName);
+      this.template = CompileUtil.getTemplate(templateName);
     } catch (final Exception e) {
       throw new IllegalStateException(e);
     }
