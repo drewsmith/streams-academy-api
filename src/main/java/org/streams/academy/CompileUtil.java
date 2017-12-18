@@ -7,11 +7,11 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 
 import javax.tools.ToolProvider;
+
+import org.apache.commons.io.IOUtils;
 
 class CompileUtil {
 
@@ -22,15 +22,13 @@ class CompileUtil {
   static final FilenameFilter CLASS_FILTER = (dir, name) -> name != null && name.endsWith(".class");
 
   static byte[] getTemplate(final String templateFilename) throws Exception {
-    final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-    final URL fileURL = classloader.getResource(templateFilename);
-    final Path templatePath = Paths.get(fileURL.toURI());
-    return Files.readAllBytes(templatePath);
+    return IOUtils.toByteArray(Thread.currentThread().getContextClassLoader().getResourceAsStream(templateFilename));
   }
 
   static Object executeCode(final StreamType type, final String code) throws Exception {
 
-    final String templateString = new String(type.getTemplate()).replace(PLACEHOLDER, code);
+    final byte[] template = getTemplate(type.getTemplateName());
+    final String templateString = new String(template).replace(PLACEHOLDER, code);
 
     final File root = new File(SOURCES_FOLDER);
     final File sourceFile = new File(root, type.getSourceFilename());

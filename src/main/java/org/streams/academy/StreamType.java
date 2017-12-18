@@ -6,18 +6,12 @@ public enum StreamType {
 
   final String sourceFilename;
   final String className;
-  final byte[] template;
+  final String templateName;
 
   StreamType(final String sourceFilename, final String className, final String templateName) {
     this.sourceFilename = sourceFilename;
     this.className = className;
-
-    try {
-      this.template = CompileUtil.getTemplate(templateName);
-    } catch (final Exception e) {
-      throw new IllegalStateException(e);
-    }
-
+    this.templateName = templateName;
   }
 
   public String getSourceFilename() {
@@ -28,8 +22,8 @@ public enum StreamType {
     return className;
   }
 
-  public byte[] getTemplate() {
-    return template;
+  public String getTemplateName() {
+    return templateName;
   }
 
 }
