@@ -16,8 +16,6 @@ public class StreamsAcademyHandler implements RequestHandler<StreamRequest, Stre
   @SuppressWarnings("unchecked")
   @Override
   public StreamResponse handleRequest(final StreamRequest streamRequest, final Context context) {
-    System.out.print(streamRequest);
-
     if (streamRequest == null) {
       return StreamResponse.fail("Request is null.");
     }
@@ -26,7 +24,7 @@ public class StreamsAcademyHandler implements RequestHandler<StreamRequest, Stre
       return StreamResponse.fail("type is null.");
     }
 
-    final StreamType streamType = StreamType.valueOf(streamRequest.getStreamType().toUpperCase());
+    final StreamType streamType = StreamType.valueOf(streamRequest.getStreamType().trim().toUpperCase());
 
     try {
       final List<String> result = (List<String>) Util.executeCode(streamType, streamRequest.getCode());
@@ -36,13 +34,12 @@ public class StreamsAcademyHandler implements RequestHandler<StreamRequest, Stre
     }
   }
 
-  // public static void main(final String[] args) {
-  // final StreamRequest r = new StreamRequest();
-  // r.setCode("map(pokemon -> pokemon.getName())");
-  // r.setType("MAP");
-  // System.out.println(new StreamsAcademyHandler().handleRequest(r,
-  // null).getOutput());
-  // }
+  public static void main(final String[] args) {
+    final StreamRequest r = new StreamRequest();
+    r.setCode("map(pokemon -> pokemon.getName())");
+    r.setStreamType("MAP");
+    System.out.println(new StreamsAcademyHandler().handleRequest(r, null).getOutput());
+  }
 
   // public static void main(final String[] args) throws IOException, Exception {
   // final String templateFilename = "templates/map.tpl";

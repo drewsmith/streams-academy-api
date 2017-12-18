@@ -5,4 +5,4 @@ lib
 .jar
 .settings
 .project
-.class
+*.class

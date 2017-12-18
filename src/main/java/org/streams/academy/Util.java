@@ -1,12 +1,14 @@
 package org.streams.academy;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -14,8 +16,10 @@ import javax.tools.ToolProvider;
 class Util {
 
   static final String PLACEHOLDER = "[PLACEHOLDER]";
-  static final String SOURCES_FOLDER = "sources";
+  static final String SOURCES_FOLDER = "src/main/resources/sources";
   static final String MAIN_CLASS = "main";
+
+  static final FilenameFilter CLASS_FILTER = (dir, name) -> name != null && name.endsWith(".class");
 
   static byte[] getTemplate(final String templateFilename) throws Exception {
     final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
@@ -45,7 +49,9 @@ class Util {
       return cls.getMethod("execute", (Class<?>[]) null).invoke(null, (Object[]) null);
     } finally {
       Files.delete(sourceFile.toPath());
-      // cleanup class
+
+      final File parentDir = new File(sourceFile.getParent());
+      Arrays.stream(parentDir.list(CLASS_FILTER)).map(File::new).forEach(File::delete);
     }
   }
 
