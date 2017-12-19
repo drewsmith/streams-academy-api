@@ -58,6 +58,14 @@ public class Application {
       this.result = result;
     }
 
+    public String getStatus() {
+      return status;
+    }
+
+    public String getResult() {
+      return result;
+    }
+
     static SubmitResponse fail(final String result) {
       return new SubmitResponse("FAIL", result);
     }
