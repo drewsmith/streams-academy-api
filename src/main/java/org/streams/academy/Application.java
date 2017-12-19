@@ -25,24 +25,47 @@ public class Application {
   public class SubmitController {
 
     @SuppressWarnings("unchecked")
-    @PostMapping(value = "/submit/{type}", consumes = "text/plain")
-    public String map(@PathVariable final String type, @RequestBody final String requestBody) {
+    @PostMapping(value = "/submit/{type}", consumes = "text/plain", produces = "application/json")
+    public SubmitResponse map(@PathVariable final String type, @RequestBody final String requestBody) {
 
       try {
 
         final StreamType streamType = StreamType.valueOf(type.trim().toUpperCase());
         final List<String> result = (List<String>) CompileUtil.executeCode(streamType, requestBody);
-        return Arrays.toString(result.toArray());
+
+        return SubmitResponse.success(Arrays.toString(result.toArray()));
 
       } catch (final Exception e) {
 
         final StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        return sw.toString();
+
+        return SubmitResponse.fail(sw.toString());
 
       }
 
     }
 
   }
+
+  static class SubmitResponse {
+
+    final String status;
+    final String result;
+
+    SubmitResponse(final String status, final String result) {
+      this.status = status;
+      this.result = result;
+    }
+
+    static SubmitResponse fail(final String result) {
+      return new SubmitResponse("FAIL", result);
+    }
+
+    static SubmitResponse success(final String result) {
+      return new SubmitResponse("SUCCESS", result);
+    }
+
+  }
+
 }

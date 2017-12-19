@@ -8,13 +8,21 @@ import java.util.List;
 
 import org.junit.Test;
 
+@SuppressWarnings("unchecked")
 public class CompileUtilTest {
 
-  @SuppressWarnings("unchecked")
   @Test
   public void shouldGenereateMapCode() throws Exception {
-    final List<String> output = (List<String>) CompileUtil.executeCode(StreamType.MAP, "map(pk -> pk.getName())");
+    final String code = "map(pk -> pk.getName())";
+    final List<String> output = (List<String>) CompileUtil.executeCode(StreamType.MAP, code);
     assertThat(output, equalTo(Arrays.asList("Pikachu", "Charmander", "Snorlax")));
+  }
+
+  @Test
+  public void shouldFilterCode() throws Exception {
+    final String code = "map(pk -> pk.getName()).filter(n -> n.equals(\"Pikachu\"))";
+    final List<String> output = (List<String>) CompileUtil.executeCode(StreamType.MAP, code);
+    assertThat(output, equalTo(Arrays.asList("Pikachu")));
   }
 
 }
